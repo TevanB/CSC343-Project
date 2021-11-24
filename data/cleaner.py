@@ -16,6 +16,6 @@ personality_df = bfd_df
 personality_df.rename(columns={"case_id": "pID","extraversion_score": "extraversion", "openness_score":"openness", "conscientiousness_score": "conscientious", "neuroticism_score":"neuroticism"}, inplace=True)
 personality_df.drop(["country", "age", "sex"], inplace=True, axis=1)
 personality_df.reset_index(drop=True, inplace=True)
-personality_df.to_csv('phase1/personality.csv')
+personality_df.to_csv('phase1/personality.csv', index=False, header=False)
 print(personality_df.head())
 #print(whr_df.head())
