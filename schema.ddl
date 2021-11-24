@@ -9,9 +9,6 @@ set search_path to projectschema;
 -- Check out TA comment from Phase 1 Justification annotation and change the relation design if you want
 -- We had an IC from personality country to happiness country but theres no country inside personality? i removed the IC for now from personality schema
 
--- Our responses to TA feedback from Phase 1
--- Design decisions from Phase 1: decided to remove Individual[pID] subset Personality[piD] IC by TA reccomendation, made more sense than the latter being removed due to nature of our Individual table
-
 create table Country(
     country varchar(20) primary key,
     gdp double precision,
