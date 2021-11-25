@@ -5,10 +5,22 @@ bfd_src = 'phase1_sample_data/big_five_data.csv'
 whr_src = 'phase1_sample_data/world_happiness_report.csv'
 cotw_src = 'phase1_sample_data/country_info_data.csv'
 
+# Helper Functions
+def str_comma_to_decimal(str):
+    return float(str.replace(',','.'))
+
+
+
 bfd_df = pd.read_csv(bfd_src)
 whr_df = pd.read_csv(whr_src)
 cotw_df = pd.read_csv(cotw_src)
 
+#convert cotw_df commas to period in birth rate
+cotw_df["Birthrate"] = cotw_df["Birthrate"].apply(str_comma_to_decimal)
+cotw_df["Deathrate"] = cotw_df["Deathrate"].apply(str_comma_to_decimal)
+cotw_df["Agriculture"] = cotw_df["Agriculture"].apply(str_comma_to_decimal)
+cotw_df["Industry"] = cotw_df["Industry"].apply(str_comma_to_decimal)
+cotw_df["Service"] = cotw_df["Service"].apply(str_comma_to_decimal)
 
 country_df = cotw_df
 country_df.rename(columns={"Country":"country_name", "GDP ($ per capita)": "gdp", "Birthrate": "birth_rate"}, inplace=True)
