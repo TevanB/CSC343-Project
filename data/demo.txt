@@ -1,2 +1,0 @@
-\i schema.ddl
-\COPY Personality from data/phase1/personality.csv with csv
