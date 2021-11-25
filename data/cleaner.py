@@ -24,12 +24,16 @@ happiness_df.reset_index(drop=True, inplace=True)
 happiness_df.to_csv('phase1/happiness.csv', index=False, header=False)
 
 
-individual_df = None
+individual_df = bfd_df
+individual_df.rename(columns={"case_id": "pID", "country_name":"country", }, inplace=True)
+individual_df.drop(["extraversion_score", "conscientiousness_score", "neuroticism_score"], inplace=True, axis=1)
+individual_df.reset_index(drop=True, inplace=True)
+individual_df.to_csv('phase1/individual.csv', index=False, header=False)
 
 
 
 personality_df = bfd_df
-personality_df.rename(columns={"case_id": "pID","extraversion_score": "extraversion", "openness_score":"openness", "conscientiousness_score": "conscientious", "neuroticism_score":"neuroticism"}, inplace=True)
+personality_df.rename(columns={"case_id": "pID","extraversion_score": "extraversion", "extraversion_score":"openness", "conscientiousness_score": "conscientious", "neuroticism_score":"neuroticism"}, inplace=True)
 personality_df.drop(["country", "age", "sex"], inplace=True, axis=1)
 personality_df.reset_index(drop=True, inplace=True)
 personality_df.to_csv('phase1/personality.csv', index=False, header=False)
