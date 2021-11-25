@@ -18,9 +18,7 @@ cotw_df = pd.read_csv(cotw_src)
 #convert cotw_df commas to period in birth rate
 cotw_df["Birthrate"] = cotw_df["Birthrate"].apply(str_comma_to_decimal)
 cotw_df["Deathrate"] = cotw_df["Deathrate"].apply(str_comma_to_decimal)
-cotw_df["Agriculture"] = cotw_df["Agriculture"].apply(str_comma_to_decimal)
-cotw_df["Industry"] = cotw_df["Industry"].apply(str_comma_to_decimal)
-cotw_df["Service"] = cotw_df["Service"].apply(str_comma_to_decimal)
+
 
 country_df = cotw_df
 country_df.rename(columns={"Country":"country_name", "GDP ($ per capita)": "gdp", "Birthrate": "birth_rate"}, inplace=True)
