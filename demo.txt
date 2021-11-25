@@ -1,3 +1,4 @@
 \i schema.ddl
+\COPY Country from data/phase1/country.csv with csv
 \COPY Individual from data/phase1/individual.csv with csv
 \COPY Personality from data/phase1/personality.csv with csv
