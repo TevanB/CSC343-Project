@@ -40,6 +40,7 @@ individual_df.drop(["extraversion_score", "conscientiousness_score", "neuroticis
 individual_df.reset_index(drop=True, inplace=True)
 individual_df.to_csv('phase1/individual.csv', index=False, header=False)
 
+bfd_df = pd.read_csv(bfd_src)
 
 
 personality_df = bfd_df
