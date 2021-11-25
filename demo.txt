@@ -1,4 +1,17 @@
-\i schema.ddl
-\COPY Country from data/phase1/country.csv with csv
-\COPY Individual from data/phase1/individual.csv with csv
-\COPY Personality from data/phase1/personality.csv with csv
+csc343h-bhatiate=> \i demo.txt 
+psql:schema.ddl:2: NOTICE:  drop cascades to 4 other objects
+DETAIL:  drop cascades to table country
+drop cascades to table happiness
+drop cascades to table individual
+drop cascades to table personality
+DROP SCHEMA
+CREATE SCHEMA
+SET
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+COPY 8
+COPY 5
+COPY 5
+COPY 5

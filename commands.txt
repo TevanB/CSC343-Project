@@ -1,0 +1,7 @@
+-- Load in schema
+\i schema.ddl 
+-- Populate tables with sample data
+\COPY Country from data/phase1/country.csv with csv
+\COPY Individual from data/phase1/individual.csv with csv
+\COPY Personality from data/phase1/personality.csv with csv
+\COPY Happiness from data/phase1/happiness.csv with csv
