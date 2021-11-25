@@ -1,9 +1,13 @@
-csc343h-bhatiate=> \i demo.txt 
+dbsrv1:~/csc343/project/CSC343-Project$ psql csc343h-bhatiate
+psql (10.19 (Ubuntu 10.19-0ubuntu0.18.04.1), server 10.18 (Ubuntu 10.18-0ubuntu0.18.04.1))
+Type "help" for help.
+
+csc343h-bhatiate=> \i commands.txt
 psql:schema.ddl:2: NOTICE:  drop cascades to 4 other objects
-DETAIL:  drop cascades to table country
-drop cascades to table happiness
-drop cascades to table individual
-drop cascades to table personality
+DETAIL:  drop cascades to table projectschema.country
+drop cascades to table projectschema.happiness
+drop cascades to table projectschema.individual
+drop cascades to table projectschema.personality
 DROP SCHEMA
 CREATE SCHEMA
 SET
@@ -15,3 +19,116 @@ COPY 8
 COPY 5
 COPY 5
 COPY 5
+csc343h-bhatiate=> \d country
+                     Table "projectschema.country"
+    Column    |         Type          | Collation | Nullable | Default 
+--------------+-----------------------+-----------+----------+---------
+ country_name | character varying(20) |           | not null | 
+ gdp          | double precision      |           | not null | 
+ birth_rate   | double precision      |           | not null | 
+Indexes:
+    "country_pkey" PRIMARY KEY, btree (country_name)
+Referenced by:
+    TABLE "happiness" CONSTRAINT "happiness_country_name_fkey" FOREIGN KEY (country_name) REFERENCES country(country_name)
+    TABLE "individual" CONSTRAINT "individual_country_name_fkey" FOREIGN KEY (country_name) REFERENCES country(country_name)
+
+csc343h-bhatiate=> \d happiness
+                     Table "projectschema.happiness"
+     Column      |         Type          | Collation | Nullable | Default 
+-----------------+-----------------------+-----------+----------+---------
+ country_name    | character varying(20) |           | not null | 
+ happiness_score | double precision      |           | not null | 
+ gdp             | double precision      |           | not null | 
+ family          | double precision      |           | not null | 
+Indexes:
+    "happiness_pkey" PRIMARY KEY, btree (country_name)
+Foreign-key constraints:
+    "happiness_country_name_fkey" FOREIGN KEY (country_name) REFERENCES country(country_name)
+
+csc343h-bhatiate=> \d individual
+                   Table "projectschema.individual"
+    Column    |         Type          | Collation | Nullable | Default 
+--------------+-----------------------+-----------+----------+---------
+ pid          | integer               |           | not null | 
+ country_name | character varying(20) |           | not null | 
+ age          | integer               |           | not null | 
+ sex          | integer               |           | not null | 
+Indexes:
+    "individual_pkey" PRIMARY KEY, btree (pid)
+Foreign-key constraints:
+    "individual_country_name_fkey" FOREIGN KEY (country_name) REFERENCES country(country_name)
+Referenced by:
+    TABLE "personality" CONSTRAINT "personality_pid_fkey" FOREIGN KEY (pid) REFERENCES individual(pid)
+
+csc343h-bhatiate=> \d personality
+                 Table "projectschema.personality"
+    Column     |       Type       | Collation | Nullable | Default 
+---------------+------------------+-----------+----------+---------
+ pid           | integer          |           | not null | 
+ openness      | double precision |           | not null | 
+ conscientious | double precision |           | not null | 
+ extraversion  | double precision |           | not null | 
+ agreeableness | double precision |           | not null | 
+ neuroticism   | double precision |           | not null | 
+Indexes:
+    "personality_pkey" PRIMARY KEY, btree (pid)
+Foreign-key constraints:
+    "personality_pid_fkey" FOREIGN KEY (pid) REFERENCES individual(pid)
+
+csc343h-bhatiate=> select count(*) from country;
+ count 
+-------
+     8
+(1 row)
+
+csc343h-bhatiate=> select count(*) from happiness;
+ count 
+-------
+     5
+(1 row)
+
+csc343h-bhatiate=> select count(*) from individual;
+ count 
+-------
+     5
+(1 row)
+
+csc343h-bhatiate=> select count(*) from personality;
+ count 
+-------
+     5
+(1 row)
+
+csc343h-bhatiate=> select * from country where gdp > 6000;
+ country_name |  gdp  | birth_rate 
+--------------+-------+------------
+ Switzerland  |  8000 |      22.46
+ Iceland      | 19000 |       8.71
+ Norway       |  8600 |      14.17
+ Canada       | 11000 |      16.93
+(4 rows)
+
+csc343h-bhatiate=> select * from happiness where happiness_score > 7.5;
+ country_name | happiness_score |   gdp   | family  
+--------------+-----------------+---------+---------
+ Switzerland  |           7.587 | 1.39651 | 1.34951
+ Iceland      |           7.561 | 1.30232 | 1.40223
+ Denmark      |           7.527 | 1.32548 | 1.36058
+ Norway       |           7.522 |   1.459 | 1.33095
+(4 rows)
+
+csc343h-bhatiate=> select * from individual where sex=1;
+ pid |  country_name  | age | sex 
+-----+----------------+-----+-----
+   1 | South Africa   |  24 |   1
+   5 | United Kingdom |  19 |   1
+   6 | United Kingdom |  17 |   1
+(3 rows)
+
+csc343h-bhatiate=> select * from personality where openness > 0.7;
+ pid |    openness    | conscientious  |  extraversion  | agreeableness  |  neuroticism   
+-----+----------------+----------------+----------------+----------------+----------------
+   1 | 0.753333333333 | 0.496666666667 | 0.803333333333 | 0.886666666667 | 0.426666666667
+   3 | 0.733333333333 |           0.68 | 0.786666666667 | 0.746666666667 |           0.59
+   4 |           0.88 |           0.77 |           0.86 | 0.896666666667 | 0.296666666667
+(3 rows)
