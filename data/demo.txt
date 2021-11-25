@@ -1,2 +1,3 @@
 \i schema.ddl
+\COPY Individual from data/phase1/individual.csv with csv
 \COPY Personality from data/phase1/personality.csv with csv
