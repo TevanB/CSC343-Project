@@ -26,7 +26,7 @@ happiness_df.to_csv('phase1/happiness.csv', index=False, header=False)
 
 individual_df = bfd_df
 individual_df.rename(columns={"case_id": "pID", "country_name":"country", }, inplace=True)
-individual_df.drop(["extraversion_score", "conscientiousness_score", "neuroticism_score"], inplace=True, axis=1)
+individual_df.drop(["extraversion_score", "conscientiousness_score", "neuroticism_score", "openness_score", "agreeable_score"], inplace=True, axis=1)
 individual_df.reset_index(drop=True, inplace=True)
 individual_df.to_csv('phase1/individual.csv', index=False, header=False)
 
