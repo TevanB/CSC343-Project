@@ -1,6 +1,8 @@
 import pandas as pd 
 import numpy as np 
 
+
+
 bfd_src = 'phase1_sample_data/big_five_data.csv'
 whr_src = 'phase1_sample_data/world_happiness_report.csv'
 cotw_src = 'phase1_sample_data/country_info_data.csv'
@@ -8,7 +10,13 @@ cotw_src = 'phase1_sample_data/country_info_data.csv'
 # Helper Functions
 def str_comma_to_decimal(str):
     return float(str.replace(',','.'))
-
+def country_format(str):
+    if str == "UK":
+        return "United Kingdom"
+    elif str == "USA":
+        return "United States"
+    else:
+        return str
 
 
 bfd_df = pd.read_csv(bfd_src)
@@ -19,6 +27,7 @@ cotw_df = pd.read_csv(cotw_src)
 cotw_df["Birthrate"] = cotw_df["Birthrate"].apply(str_comma_to_decimal)
 cotw_df["Deathrate"] = cotw_df["Deathrate"].apply(str_comma_to_decimal)
 
+bfd_df["country"]  = bfd_df["country"].apply(country_format)
 
 country_df = cotw_df
 country_df.rename(columns={"Country":"country_name", "GDP ($ per capita)": "gdp", "Birthrate": "birth_rate"}, inplace=True)
@@ -33,9 +42,8 @@ happiness_df.drop(["Region","Happiness Rank","Standard Error","Health (Life Expe
 happiness_df.reset_index(drop=True, inplace=True)
 happiness_df.to_csv('phase1/happiness.csv', index=False, header=False)
 
-
 individual_df = bfd_df
-individual_df.rename(columns={"case_id": "pID", "country_name":"country", }, inplace=True)
+individual_df.rename(columns={"case_id": "pID", "country_name":"country"}, inplace=True)
 individual_df.drop(["extraversion_score", "conscientiousness_score", "neuroticism_score", "openness_score", "agreeable_score"], inplace=True, axis=1)
 individual_df.reset_index(drop=True, inplace=True)
 individual_df.to_csv('phase1/individual.csv', index=False, header=False)
