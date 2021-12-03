@@ -15,7 +15,7 @@ set search_path to projectschema;
 -- birth_rate is the birth rate in each country
 
 create table Country(
-    country_name varchar(20) primary key,
+    country_name varchar(30) primary key,
     gdp double precision NOT NULL,
     birth_rate double precision NOT NULL
 );
@@ -27,11 +27,11 @@ create table Country(
 -- family is the extent to which family contributes to the calculation of the happiness the country
 
 create table Happiness(
-    country_name varchar(20) primary key,
+    country_name varchar(30) primary key,
     happiness_score double precision NOT NULL,
     gdp double precision NOT NULL,
-    family double precision NOT NULL, 
-    foreign key (country_name) references Country
+    family double precision NOT NULL
+    -- foreign key (country_name) references Country
 );
 
 -- An individual that participated in the personality survey.  
@@ -42,10 +42,10 @@ create table Happiness(
 
 create table Individual(
     pID integer primary key,
-    country_name varchar(20) NOT NULL,
+    country_name varchar(30) NOT NULL,
     age integer NOT NULL,
-    sex integer NOT NULL,
-    foreign key (country_name) references Country
+    sex integer NOT NULL
+    -- foreign key (country_name) references Country
 );
 
 -- The personality scores in each category for each individual. 
@@ -61,7 +61,7 @@ create table Personality(
     conscientious double precision NOT NULL,
     extraversion double precision NOT NULL,
     agreeableness double precision NOT NULL,
-    neuroticism double precision NOT NULL,
-    foreign key (pID) references Individual
+    neuroticism double precision NOT NULL
+    -- foreign key (pID) references Individual
 );
 
