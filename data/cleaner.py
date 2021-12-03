@@ -14,7 +14,12 @@ cotw_src = 'countries_info.csv'
 
 # Helper Functions
 def str_comma_to_decimal(s):
-    return float(s.replace(',', '.'))
+    if type(s) is str and ',' in s:
+        return float(s.replace(',', '.'))
+
+
+def drop_end_space(s):
+    return s[:-1]
 
 
 def country_format(str):
@@ -31,8 +36,10 @@ whr_df = pd.read_csv(whr_src)
 cotw_df = pd.read_csv(cotw_src)
 
 #convert cotw_df commas to period in birth rate
-# cotw_df["Birthrate"] = cotw_df["Birthrate"].apply(str_comma_to_decimal)
-# cotw_df["Deathrate"] = cotw_df["Deathrate"].apply(str_comma_to_decimal)
+
+cotw_df["Birthrate"] = cotw_df["Birthrate"].apply(str_comma_to_decimal)
+cotw_df["Country"] = cotw_df["Country"].apply(drop_end_space)
+# print(len(cotw_df["Country"][1]), cotw_df["Country"][1][-1])
 
 bfd_df["country"] = bfd_df["country"].apply(country_format)
 
@@ -54,7 +61,7 @@ country_df.drop([
                 axis=1)
 country_df.reset_index(drop=True, inplace=True)
 # country_df.to_csv('phase2/country.csv', index=False, header=False)
-country_df.to_csv('phase3/country.csv', index=False, header=False)
+# country_df.to_csv('phase3/country.csv', index=False, header=False)
 
 happiness_df = whr_df
 happiness_df.rename(columns={
@@ -87,7 +94,12 @@ individual_df.drop([
 ],
                    inplace=True,
                    axis=1)
+
+individual_df.replace('', np.nan, inplace=True)
+individual_df.dropna(inplace=True)
 individual_df.reset_index(drop=True, inplace=True)
+
+individual_df = individual_df[individual_df.country != 'Yugoslavia']
 # individual_df.to_csv('phase2/individual.csv', index=False, header=False)
 individual_df.to_csv('phase3/individual.csv', index=False, header=False)
 
