@@ -16,7 +16,7 @@ CREATE VIEW HighNeuroticism AS
 SELECT country_name, N
 FROM CountryAverage
 WHERE N > (SELECT PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY N) FROM CountryAverage)
-ORDER BY N;
+ORDER BY N DESC;
 
 -- Happiness scores for countries with a high average neuroticism score
 CREATE VIEW HighNHappiness AS 
@@ -37,6 +37,9 @@ ORDER BY N DESC;
 -- 2. Exploring sex differences on personality
 DROP VIEW IF EXISTS MaleAvg CASCADE;
 DROP VIEW IF EXISTS FemaleAvg CASCADE;
+DROP VIEW IF EXISTS HighBirth CASCADE;
+DROP VIEW IF EXISTS HighBMale CASCADE;
+DROP VIEW IF EXISTS HighBFemale CASCADE;
 
 -- Average personality trait scores for all males
 CREATE VIEW MaleAvg AS
@@ -50,4 +53,27 @@ SELECT avg(openness) as O, avg(conscientious) as C, avg(extraversion) as E, avg(
 FROM Personality, Individual
 WHERE Personality.pID = Individual.pID and sex = 2;
 -- openness, conscientious, extraversion, agreeableness, neuroticism
+
+-- Countries with high birth rate
+CREATE VIEW HighBirth AS 
+SELECT country_name, birth_rate
+FROM Country
+WHERE birth_rate > (SELECT PERCENTILE_CONT(0.75) WITHIN GROUP(ORDER BY birth_rate) FROM Country)
+ORDER BY birth_rate DESC;
+
+-- Average personality trait scores for all males in countries with high birth rate
+CREATE VIEW HighBMale AS 
+SELECT avg(openness) as O, avg(conscientious) as C, avg(extraversion) as E, avg(agreeableness) as A, avg(neuroticism) as N
+FROM HighBirth, Personality, Individual
+WHERE Personality.pID = Individual.pID and sex = 1 and
+HighBirth.country_name = Individual.country_name;
+
+-- Average personality trait scores for all females in countries with high birth rate
+CREATE VIEW HighBFemale AS 
+SELECT avg(openness) as O, avg(conscientious) as C, avg(extraversion) as E, avg(agreeableness) as A, avg(neuroticism) as N
+FROM HighBirth, Personality, Individual
+WHERE Personality.pID = Individual.pID and sex = 2 and
+HighBirth.country_name = Individual.country_name;
+
+
 
