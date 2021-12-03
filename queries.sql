@@ -118,7 +118,7 @@ CREATE VIEW LowNeuroticismAvgTraits AS
 SELECT avg(openness) as o, avg(conscientious) as c, avg(extraversion) as e, avg(agreeableness) as a, avg(neuroticism) as n, avg(happiness_score) as h 
 FROM LowNeuroticismHappiness;
 
--- See general correlation of traits between High and Low Neuroticism 
+-- See general comparison of traits between High and Low Neuroticism 
 CREATE VIEW TraitCorrelation AS 
 SELECT (t1.o-t2.o) as o, (t1.c-t2.c) as c, (t1.e-t2.e) as e, (t1.a-t2.a) as a, (t1.n-t2.n) as n 
 FROM HighNeuroticismAvgTraits as t1, LowNeuroticismAvgTraits as t2;
@@ -131,6 +131,7 @@ DROP VIEW IF EXISTS AvgAgreeOverAvgExtraversion CASCADE;
 DROP VIEW IF EXISTS AvgAgreeUnderAvgExtraversion CASCADE;
 DROP VIEW IF EXISTS OverResults CASCADE;
 DROP VIEW IF EXISTS UnderResults CASCADE;
+DROP VIEW IF EXISTS OverUnderResults CASCADE;
 
 -- Getting Individual and Country information for people with high neuroticisim (>0.7)
 CREATE VIEW CountryIndiv AS 
@@ -167,3 +168,51 @@ FROM AvgAgreeOverAvgExtraversion;
 CREATE VIEW UnderResults AS
 SELECT avg(happiness_score) as happiness, count(happiness_score) as count
 FROM AvgAgreeUnderAvgExtraversion;
+
+CREATE VIEW OverUnderResults AS 
+SELECT t1.happiness as over_happiness, t1.count as over_count, t2.happiness as under_happiness, t2.count as under_count  
+FROM OverResults as t1 RIGHT OUTER JOIN UnderResults as t2 ON true;
+
+-- 5. Exploring Q2 on the pdf
+DROP VIEW IF EXISTS MedianGDPBirthRate CASCADE;
+DROP VIEW IF EXISTS HighGDPBRCountries CASCADE;
+DROP VIEW IF EXISTS HighGDPFamilyContribution CASCADE;
+DROP VIEW IF EXISTS CombinedConditionsCountry CASCADE;
+DROP VIEW IF EXISTS MedianHappiness CASCADE;
+DROP VIEW IF EXISTS NumHappierMedian CASCADE;
+
+-- Get median values for GDP and Birth Rate over all countries
+CREATE VIEW MedianGDPBirthRate AS 
+SELECT * 
+FROM (SELECT PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY gdp) as gdp_median FROM Country) t1 RIGHT OUTER JOIN
+    (SELECT PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY birth_rate) as birth_rate_median FROM Country) t2 ON true;
+
+-- Get High GDP/Birth Rate Countries
+CREATE VIEW HighGDPBRCountries AS 
+SELECT * 
+FROM Country as t1, MedianGDPBirthRate as t2
+WHERE t1.gdp > t2.gdp_median AND t1.birth_rate > t2.birth_rate_median;
+
+-- Get High GDP/Family Contribution to Happiness countries
+CREATE VIEW HighGDPFamilyContribution AS 
+SELECT * 
+FROM Happiness
+WHERE gdp > 1 and family > 1;
+
+-- Combine Conditions Above
+CREATE VIEW CombinedConditionsCountry AS 
+SELECT t1.country_name, t1.gdp, t1.birth_rate, t2.family, t2.happiness_score 
+FROM HighGDPBRCountries as t1, HighGDPFamilyContribution as t2
+WHERE t1.country_name = t2.country_name;
+
+-- Find median happiness score for condition-subset of countries and all countries
+CREATE VIEW MedianHappiness AS
+SELECT * 
+FROM (SELECT PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY happiness_score) as subset_median FROM CombinedConditionsCountry) t1
+RIGHT OUTER JOIN (SELECT PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY happiness_score) as total_median FROM Happiness) t2 on true;
+
+-- Find number of subset countries that have higher happiness than total median
+CREATE VIEW NumHappierMedian AS 
+SELECT count(*) as num_greater, (avg(t4.total_subset_count) - count(*)) as num_less, avg(t3.total_count) as total_count
+FROM CombinedConditionsCountry as t1, MedianHappiness as t2, (SELECT count(*) as total_count FROM Happiness) t3, (SELECT count(*) as total_subset_count FROM CombinedConditionsCountry) t4
+WHERE t1.happiness_score > t2.total_median;
