@@ -3,12 +3,6 @@ drop schema if exists projectschema cascade;
 create schema projectschema;
 set search_path to projectschema;
 
--- For Cathy
--- Schema Info taken from Phase 1 Report
--- Consider using real vs double precision (cannot find a better data type for float between 0-1)
--- Check out TA comment from Phase 1 Justification annotation and change the relation design if you want
--- We had an IC from personality country to happiness country but theres no country inside personality? i removed the IC for now from personality schema
-
 -- A country in the world with basic information. 
 -- country_name is the name of the country in English
 -- gdp is the gross domestic product (GDP) per capita (country's GDP divided by its total population)
@@ -31,7 +25,7 @@ create table Happiness(
     happiness_score double precision NOT NULL,
     gdp double precision NOT NULL,
     family double precision NOT NULL
-    -- foreign key (country_name) references Country
+    /* foreign key (country_name) references Country */
 );
 
 -- An individual that participated in the personality survey.  
@@ -45,7 +39,7 @@ create table Individual(
     country_name varchar(30) NOT NULL,
     age integer NOT NULL,
     sex integer NOT NULL
-    -- foreign key (country_name) references Country
+    /* foreign key (country_name) references Country */
 );
 
 -- The personality scores in each category for each individual. 
@@ -62,6 +56,6 @@ create table Personality(
     extraversion double precision NOT NULL,
     agreeableness double precision NOT NULL,
     neuroticism double precision NOT NULL
-    -- foreign key (pID) references Individual
+    /* foreign key (pID) references Individual */
 );
 
