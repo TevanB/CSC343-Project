@@ -111,6 +111,7 @@ FROM HighNeuroticismAvgTraits as t1, LowNeuroticismAvgTraits as t2;
 DROP VIEW IF EXISTS CountryAverage CASCADE;
 DROP VIEW IF EXISTS HighNeuroticism CASCADE;
 DROP VIEW IF EXISTS HighNHappiness CASCADE;
+DROP VIEW IF EXISTS LowNHappiness CASCADE;
 DROP VIEW IF EXISTS HighNInfo CASCADE;
 
 -- Average personality scores for each country
@@ -124,15 +125,23 @@ GROUP BY Individual.country_name;
 CREATE VIEW HighNeuroticism AS 
 SELECT country_name, N
 FROM CountryAverage
-WHERE N > (SELECT PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY N) FROM CountryAverage)
+WHERE N > 0.7
 ORDER BY N DESC;
+-- (SELECT PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY N) FROM CountryAverage)
 
--- Happiness scores for countries with a high average neuroticism score
+-- Average happiness score for countries with a high average neuroticism score
 CREATE VIEW HighNHappiness AS 
-SELECT Happiness.country_name, N, happiness_score
+SELECT avg(happiness_score)
 FROM Happiness, HighNeuroticism
-WHERE Happiness.country_name = HighNeuroticism.country_name
-ORDER BY N DESC;
+WHERE Happiness.country_name = HighNeuroticism.country_name;
+
+-- Average happiness score for countries with a low average neuroticism score
+CREATE VIEW LowNHappiness AS 
+SELECT avg(happiness_score)
+FROM Happiness
+WHERE Happiness.country_name NOT IN (
+    SELECT country_name FROM HighNeuroticism
+);
 
 -- GDP & birth rate of countries with high neuroticism
 CREATE VIEW HighNInfo AS 
