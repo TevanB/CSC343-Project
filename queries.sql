@@ -57,7 +57,58 @@ WHERE country_name NOT IN (
 
 
 
--- 2. Exploring the mitigating effect other personality traits have on neuroticism in the case of high neuroticism
+-- 2. Explore average happiness score for countries with average agreeableness score above average extraversion score 
+--      above those with the former lower than the latter (q3 in pdf)
+DROP VIEW IF EXISTS CountryIndiv CASCADE;
+DROP VIEW IF EXISTS CountryHappinessTraits CASCADE;
+DROP VIEW IF EXISTS AvgAgreeOverAvgExtraversion CASCADE;
+DROP VIEW IF EXISTS AvgAgreeUnderAvgExtraversion CASCADE;
+DROP VIEW IF EXISTS OverResults CASCADE;
+DROP VIEW IF EXISTS UnderResults CASCADE;
+DROP VIEW IF EXISTS OverUnderResults CASCADE;
+
+-- Getting Individual and Country information for people with high neuroticisim (>0.7)
+CREATE VIEW CountryIndiv AS 
+SELECT t1.pID, t2.country_name, t1.openness, t1.conscientious, t1.extraversion, t1.agreeableness, t1.neuroticism 
+FROM Personality as t1, Individual as t2
+WHERE t1.pID = t2.pID and t1.neuroticism > 0.7;
+
+-- Add Happiness score to above table (note: there is one happiness score per country)
+CREATE VIEW CountryHappinessTraits AS 
+SELECT t1.pid, t1.country_name, t1.openness, t1.conscientious, t1.extraversion, t1.agreeableness, t1.neuroticism, t2.happiness_score
+FROM CountryIndiv as t1, Happiness as t2
+WHERE t1.country_name = t2.country_name;
+
+-- Find average agreeableness over average extraversion score by country
+CREATE VIEW AvgAgreeOverAvgExtraversion AS 
+SELECT avg(happiness_score) as happiness_score, country_name 
+FROM CountryHappinessTraits
+GROUP BY country_name
+HAVING avg(agreeableness) > avg(extraversion);
+
+-- Find average agreeableness under average extraversion score by country
+CREATE VIEW AvgAgreeUnderAvgExtraversion AS 
+SELECT avg(happiness_score) as happiness_score, country_name 
+FROM CountryHappinessTraits
+GROUP BY country_name
+HAVING avg(agreeableness) < avg(extraversion);
+
+-- Display results of over vs under above simply - display this in pdf file tomorrow!
+CREATE VIEW OverResults AS
+SELECT avg(happiness_score) as happiness, count(happiness_score) as count
+FROM AvgAgreeOverAvgExtraversion;
+
+CREATE VIEW UnderResults AS
+SELECT avg(happiness_score) as happiness, count(happiness_score) as count
+FROM AvgAgreeUnderAvgExtraversion;
+
+CREATE VIEW OverUnderResults AS 
+SELECT t1.happiness as over_happiness, t1.count as over_count, t2.happiness as under_happiness, t2.count as under_count  
+FROM OverResults as t1 RIGHT OUTER JOIN UnderResults as t2 ON true;
+
+
+
+-- 3. Exploring the mitigating effect other personality traits have on neuroticism in the case of high neuroticism
 DROP VIEW IF EXISTS HighNeuroticismCountryIndiv CASCADE;
 DROP VIEW IF EXISTS HighNeuroticismHappiness CASCADE;
 DROP VIEW IF EXISTS HighNeuroticismAvgTraits CASCADE;
@@ -107,12 +158,14 @@ FROM HighNeuroticismAvgTraits as t1, LowNeuroticismAvgTraits as t2;
 
 
 
--- 3. Exploring high neuroticism countries
+-- 4. Exploring high neuroticism countries
 DROP VIEW IF EXISTS CountryAverage CASCADE;
 DROP VIEW IF EXISTS HighNeuroticism CASCADE;
 DROP VIEW IF EXISTS HighNHappiness CASCADE;
 DROP VIEW IF EXISTS LowNHappiness CASCADE;
 DROP VIEW IF EXISTS HighNInfo CASCADE;
+DROP VIEW IF EXISTS HighNInfoAvg CASCADE;
+DROP VIEW IF EXISTS LowNInfoAvg CASCADE;
 
 -- Average personality scores for each country
 CREATE VIEW CountryAverage AS 
@@ -150,58 +203,23 @@ FROM Country, HighNeuroticism
 WHERE Country.country_name = HighNeuroticism.country_name
 ORDER BY N DESC;
 
+-- GDP & birth rate of countries with high neuroticism
+CREATE VIEW HighNInfoAvg AS 
+SELECT avg(gdp) as gdp, avg(birth_rate) as br
+FROM Country, HighNeuroticism
+WHERE Country.country_name = HighNeuroticism.country_name;
+
+-- GDP & birth rate of countries with low neuroticism
+CREATE VIEW LowNInfoAvg AS 
+SELECT avg(gdp) as gdp, avg(birth_rate) as br
+FROM Country
+WHERE Country.country_name NOT IN (
+    SELECT country_name FROM HighNeuroticism
+);
 
 
--- 4. Explore average happiness score for countries with average agreeableness score above average extraversion score 
---      above those with the former lower than the latter (q3 in pdf)
-DROP VIEW IF EXISTS CountryIndiv CASCADE;
-DROP VIEW IF EXISTS CountryHappinessTraits CASCADE;
-DROP VIEW IF EXISTS AvgAgreeOverAvgExtraversion CASCADE;
-DROP VIEW IF EXISTS AvgAgreeUnderAvgExtraversion CASCADE;
-DROP VIEW IF EXISTS OverResults CASCADE;
-DROP VIEW IF EXISTS UnderResults CASCADE;
-DROP VIEW IF EXISTS OverUnderResults CASCADE;
 
--- Getting Individual and Country information for people with high neuroticisim (>0.7)
-CREATE VIEW CountryIndiv AS 
-SELECT t1.pID, t2.country_name, t1.openness, t1.conscientious, t1.extraversion, t1.agreeableness, t1.neuroticism 
-FROM Personality as t1, Individual as t2
-WHERE t1.pID = t2.pID and t1.neuroticism > 0.7;
-
--- Add Happiness score to above table (note: there is one happiness score per country)
-CREATE VIEW CountryHappinessTraits AS 
-SELECT t1.pid, t1.country_name, t1.openness, t1.conscientious, t1.extraversion, t1.agreeableness, t1.neuroticism, t2.happiness_score
-FROM CountryIndiv as t1, Happiness as t2
-WHERE t1.country_name = t2.country_name;
-
--- Find average agreeableness over average extraversion score by country
-CREATE VIEW AvgAgreeOverAvgExtraversion AS 
-SELECT avg(happiness_score) as happiness_score, country_name 
-FROM CountryHappinessTraits
-GROUP BY country_name
-HAVING avg(agreeableness) > avg(extraversion);
-
--- Find average agreeableness under average extraversion score by country
-CREATE VIEW AvgAgreeUnderAvgExtraversion AS 
-SELECT avg(happiness_score) as happiness_score, country_name 
-FROM CountryHappinessTraits
-GROUP BY country_name
-HAVING avg(agreeableness) < avg(extraversion);
-
--- Display results of over vs under above simply - display this in pdf file tomorrow!
-CREATE VIEW OverResults AS
-SELECT avg(happiness_score) as happiness, count(happiness_score) as count
-FROM AvgAgreeOverAvgExtraversion;
-
-CREATE VIEW UnderResults AS
-SELECT avg(happiness_score) as happiness, count(happiness_score) as count
-FROM AvgAgreeUnderAvgExtraversion;
-
-CREATE VIEW OverUnderResults AS 
-SELECT t1.happiness as over_happiness, t1.count as over_count, t2.happiness as under_happiness, t2.count as under_count  
-FROM OverResults as t1 RIGHT OUTER JOIN UnderResults as t2 ON true;
-
--- 6. Exploring the effect of GDP/Family Contribution/birth rate on happiness
+-- 5. Exploring the effect of GDP/Family Contribution/birth rate on happiness
 DROP VIEW IF EXISTS MedianGDPBirthRate CASCADE;
 DROP VIEW IF EXISTS HighGDPBRCountries CASCADE;
 DROP VIEW IF EXISTS HighGDPFamilyContribution CASCADE;
